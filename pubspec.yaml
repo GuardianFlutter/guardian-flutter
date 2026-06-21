@@ -25,7 +25,7 @@ dependencies:
 
   # ── Ubicación ─────────────────────────────────────────────────────────────
   geolocator: ^11.0.0
-  geocoding: ^3.0.0
+  geocoding: ^4.0.0
 
   # ── Imágenes ──────────────────────────────────────────────────────────────
   image_picker: ^1.0.7
@@ -37,7 +37,7 @@ dependencies:
   # ── Utilidades ────────────────────────────────────────────────────────────
   intl: ^0.19.0
   url_launcher: ^6.2.5
-  vibration: ^1.8.4
+  vibration: ^3.2.0
   permission_handler: ^11.3.0
   shared_preferences: ^2.2.3
 

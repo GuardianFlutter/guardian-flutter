@@ -95,9 +95,10 @@
     },
     {
       "name": "vibration",
-      "version": "1.9.0",
+      "version": "3.2.0",
       "dependencies": [
         "flutter",
+        "plugin_platform_interface",
         "vibration_platform_interface"
       ]
     },
@@ -161,7 +162,7 @@
     },
     {
       "name": "geocoding",
-      "version": "3.0.0",
+      "version": "4.0.0",
       "dependencies": [
         "flutter",
         "geocoding_android",
@@ -483,11 +484,18 @@
     },
     {
       "name": "vibration_platform_interface",
-      "version": "0.0.3",
+      "version": "0.1.2",
       "dependencies": [
         "device_info_plus",
         "flutter",
         "plugin_platform_interface"
+      ]
+    },
+    {
+      "name": "plugin_platform_interface",
+      "version": "2.1.8",
+      "dependencies": [
+        "meta"
       ]
     },
     {
@@ -691,7 +699,7 @@
     },
     {
       "name": "geocoding_android",
-      "version": "3.3.1",
+      "version": "4.0.1",
       "dependencies": [
         "flutter",
         "geocoding_platform_interface"
@@ -1019,13 +1027,6 @@
       "version": "0.0.0",
       "dependencies": [
         "flutter"
-      ]
-    },
-    {
-      "name": "plugin_platform_interface",
-      "version": "2.1.8",
-      "dependencies": [
-        "meta"
       ]
     },
     {

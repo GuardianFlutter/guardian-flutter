@@ -4,10 +4,13 @@ import 'package:provider/provider.dart';
 import 'core/theme/app_theme.dart';
 import 'providers/providers.dart';
 import 'ui/auth/splash_screen.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const GuardianApp());
 }
 
