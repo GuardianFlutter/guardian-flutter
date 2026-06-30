@@ -1,8 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import '../data/models/models.dart';
 import '../data/repositories/repositories.dart';
 import 'dart:io';
+import '../services/notification_services.dart';
 
 // ═══════════════════════════════════════════════════════════════
 // AUTH PROVIDER
@@ -200,6 +202,7 @@ class ReportProvider extends ChangeNotifier {
 class SosProvider extends ChangeNotifier {
   final _repo = SosRepository();
   final _locationRepo = LocationRepository();
+  final _rep = AuthRepository();
 
   bool _active = false;
   bool _loading = false;
@@ -210,9 +213,17 @@ class SosProvider extends ChangeNotifier {
   bool get loading => _loading;
   String? get error => _error;
 
+  double _lastLat = 0;
+  double _lastLon = 0;
+  String _lastAddress = 'Ubicación desconocida';
+  double get lastLat => _lastLat;
+  double get lastLon => _lastLon;
+  String get lastAddress => _lastAddress;
+
   Future<bool> activateSos({
     required String userId,
     required String userName,
+    String userEmail = '',
     String userPhone = '',
   }) async {
     _loading = true;
@@ -231,11 +242,18 @@ class SosProvider extends ChangeNotifier {
       _activeAlertId = await _repo.activateSos(
         userId: userId,
         userName: userName,
+        userEmail: userEmail,
         userPhone: userPhone,
         latitude: lat,
         longitude: lon,
         address: address,
       );
+      _lastLat = lat;
+      _lastLon = lon;
+      _lastAddress = address;
+
+      _sendNotifications(userId: userId, userName: userName, latitude: lat, longitude: lon, address: address);
+
       _active = true;
       _loading = false;
       notifyListeners();
@@ -246,6 +264,43 @@ class SosProvider extends ChangeNotifier {
       notifyListeners();
       return false;
     }
+  }
+
+  Future<void> _sendNotifications(
+    {
+      required String userId,
+      required String userName,
+      required double latitude,
+      required double longitude,
+      required String address
+    }
+  ) async {
+    try{
+      final token = await _rep.getIdToken();
+      if(token == null) return;
+      final contacts = await _repo.getSosContacts(userId);
+      if(contacts.isEmpty) return;
+
+      final recipients = contacts
+        .where((c) => c.email.isNotEmpty)
+        .map((c) => {
+          'email': c.email,
+          'name' : c.name,
+          'phone' : c.phone,
+          'relation': c.relation,
+        }).toList();
+
+      if(recipients.isEmpty) return;
+
+      await notificationServices.sendSosEmail(
+        IdToken: token, 
+        userId: userId, 
+        userName: userName, 
+        address: address, 
+        latitude: latitude.toString(), 
+        longitude: longitude.toString(), 
+        recipients: recipients);
+    } catch(_){}
   }
 
   Future<void> cancelSos() async {

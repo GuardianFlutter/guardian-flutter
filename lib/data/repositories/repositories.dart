@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:http/http.dart' as http;
@@ -91,6 +92,10 @@ class AuthRepository {
     if (firebaseUser != null && firebaseUser.displayName != user.fullName) {
       await firebaseUser.updateDisplayName(user.fullName);
     }
+  }
+
+  Future<String?> getIdToken() async{
+    return _auth.currentUser?.getIdToken();
   }
 
   void logout() => _auth.signOut();
@@ -200,6 +205,7 @@ class SosRepository {
   Future<String> activateSos({
     required String userId,
     required String userName,
+    required String userEmail,
     required String userPhone,
     required double latitude,
     required double longitude,
@@ -211,6 +217,7 @@ class SosRepository {
       id: docRef.id,
       userId: userId,
       userName: userName,
+      userEmail: userEmail,
       userPhone: userPhone,
       latitude: latitude,
       longitude: longitude,
@@ -239,6 +246,37 @@ class SosRepository {
     return snapshot.docs
         .map((doc) => AlertModel.fromMap(doc.id, doc.data() as Map<String, dynamic>))
         .toList();
+  }
+
+  Future<List<SosContact>> getSosContacts(String userId) async {
+    final snapshot = await _db
+        .collection('sos_contacts')
+        .where('ownerUid', isEqualTo: userId)
+        .get();
+      return snapshot.docs
+        .map((d) => SosContact.fromMap(d.id, d.data() as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<void> addContact(Map<String, dynamic> data) async{
+    await _db
+      .collection('sos_contacts')
+      .add(data);
+  }
+
+  Future<void> updateContact(String contactId, Map<String, dynamic> data) async{
+    await _db
+      .collection('sos_contacts')
+      .doc(contactId)
+      .update(data);
+  } 
+
+  Future<void> deleteContact(String contactId)
+  async{
+    await _db
+      .collection('sos_contacts')
+      .doc(contactId)
+      .delete();
   }
 }
 

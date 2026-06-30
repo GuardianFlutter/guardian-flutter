@@ -7,6 +7,8 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../core/constants/app_colors.dart';
 import '../../providers/providers.dart';
 import '../sos/sos_contacts_screen.dart';
+import '../../services/notification_services.dart';
+import '../../data/repositories/repositories.dart';
 
 class SosScreen extends StatefulWidget {
   const SosScreen({super.key});
@@ -22,6 +24,7 @@ class _SosScreenState extends State<SosScreen> with TickerProviderStateMixin {
   double _progress = 0.0;
   Timer? _holdTimer;
   DateTime? _pressStart;
+  int _contactCount = 0;
 
   // Animations
   late AnimationController _pulseCtrl;
@@ -31,6 +34,7 @@ class _SosScreenState extends State<SosScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    _loadContactCount();
     _pulseCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1500))
       ..repeat(reverse: true);
     _pulseAnim = Tween<double>(begin: 0.94, end: 1.0).animate(
@@ -74,6 +78,7 @@ class _SosScreenState extends State<SosScreen> with TickerProviderStateMixin {
     await context.read<SosProvider>().activateSos(
       userId:    user?.uid   ?? 'anonymous',
       userName:  user?.fullName ?? '',
+      userEmail: user?.email ?? '',
       userPhone: user?.phone  ?? '',
     );
     _vibrateEmergency();
@@ -86,6 +91,13 @@ class _SosScreenState extends State<SosScreen> with TickerProviderStateMixin {
         ),
       );
     }
+
+    final sos = context.read<SosProvider>();
+    notificationServices.openWhatsapp(
+    userName: user?.fullName ?? '', 
+    address: sos.lastAddress, 
+    latitude: (sos.lastLat).toString(), 
+    longitude: (sos.lastLon).toString());
   }
 
   Future<void> _cancelSos() async {
@@ -99,6 +111,15 @@ class _SosScreenState extends State<SosScreen> with TickerProviderStateMixin {
             backgroundColor: AppColors.success),
       );
     }
+  }
+
+  Future<void> _loadContactCount() async{
+    try{
+      final uid = context.read<AuthProvider>().user?.uid ?? '';
+      final repo = SosRepository();
+      final contacts = await repo.getSosContacts(uid);
+      if(mounted) setState(() => _contactCount = contacts.length);
+    } catch(_){}
   }
 
   Future<void> _vibrateEmergency() async {

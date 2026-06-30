@@ -201,6 +201,7 @@ class AlertModel {
   final Timestamp createdAt;
   final Timestamp? resolvedAt;
   final String userName;
+  final String userEmail;
   final String userPhone;
 
   const AlertModel({
@@ -215,6 +216,7 @@ class AlertModel {
     required this.createdAt,
     this.resolvedAt,
     this.userName = '',
+    this.userEmail = '',
     this.userPhone = '',
   });
 
@@ -229,6 +231,7 @@ class AlertModel {
     'createdAt': createdAt,
     'resolvedAt': resolvedAt,
     'userName': userName,
+    'userEmail': userEmail,
     'userPhone': userPhone,
   };
 
@@ -244,6 +247,32 @@ class AlertModel {
     createdAt: map['createdAt'] as Timestamp? ?? Timestamp.now(),
     resolvedAt: map['resolvedAt'] as Timestamp?,
     userName: map['userName'] as String? ?? '',
+    userEmail: map['userEmail'] as String? ?? '',
     userPhone: map['userPhone'] as String? ?? '',
   );
 }
+
+class SosContact {
+  final String id, name, email, phone, relation;
+  const SosContact({
+    required this.id, 
+    required this.name,
+    required this.email, 
+    required this.phone, 
+    required this.relation});
+
+  factory SosContact.fromMap(String id, Map<String, dynamic> m) => SosContact(
+    id: id,
+    name: m['name'] as String? ?? '',
+    email: m['email'] as String? ?? '',
+    phone: m['phone'] as String? ?? '',
+    relation: m['relation'] as String? ?? '',
+  );
+
+  Map<String, dynamic> toMap() => {
+    'name': name, 
+    'email': email, 
+    'phone': phone, 
+    'relation': relation};
+}
+
